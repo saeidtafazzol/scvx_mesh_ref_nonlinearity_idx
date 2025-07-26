@@ -9,6 +9,11 @@ class DynamicsBase:
         # Define state and control symbols (default sizes, can be overridden)
         self.n_x = n_x
         self.n_u = n_u
+        
+        # Create temp directory for generated files
+        self.temp_dir = "temp"
+        if not os.path.exists(self.temp_dir):
+            os.makedirs(self.temp_dir)
         self.states = ca.MX.sym('states', self.n_x)
         self.control = ca.MX.sym('control', self.n_u)
         self.s = ca.MX.sym('s')  # time dilation
@@ -92,11 +97,23 @@ class DynamicsBase:
             inputs.append(self.s)
         
         func_aux = ca.Function(func_name, inputs, [expr])
-        c_filename = f"{filename_base}.c"
-        so_filename = f"{filename_base}.so"
-        func_aux.generate(c_filename)
-        os.system(f"gcc -fPIC -shared {c_filename} -o {so_filename}")
-        return ca.external(func_name, f"./{so_filename}")
+        
+        # Save current directory and change to temp directory
+        current_dir = os.getcwd()
+        os.chdir(self.temp_dir)
+        
+        try:
+            c_filename = f"{filename_base}.c"
+            so_filename = f"{filename_base}.so"
+            func_aux.generate(c_filename)
+            os.system(f"gcc -fPIC -shared {c_filename} -o {so_filename}")
+            # Return to original directory and create external function with full path
+            os.chdir(current_dir)
+            return ca.external(func_name, os.path.join(self.temp_dir, so_filename))
+        except Exception as e:
+            # Make sure we return to original directory even if there's an error
+            os.chdir(current_dir)
+            raise e
 
     def compile(self):
         if self.state_dot_sub is None:

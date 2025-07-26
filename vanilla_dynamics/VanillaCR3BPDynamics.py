@@ -1,6 +1,6 @@
 import numpy as np
 import casadi as ca
-from .VanillaDynamicsBase import VanillaDynamicsBase
+from vanilla_dynamics.VanillaDynamicsBase import VanillaDynamicsBase
 
 class VanillaCR3BPDynamics(VanillaDynamicsBase):
     """
