@@ -162,7 +162,6 @@ class CVXProgram:
                 fun=lambda t, V: self._ode_dVdt(V, t, U[i, :], U[i + 1, :], S[i]),
                 t_span=(0, self.dt),
                 y0=self.V0,
-                method='RK45',
                 dense_output=False
             )
             V = sol.y[:, -1]
@@ -188,7 +187,7 @@ class CVXProgram:
 
         f_subs = self.dynamics.state_dot(x, u, s).squeeze()
         A = self.dynamics.state_dot_x(x, u, s).squeeze()
-        B = self.dynamics.state_dot_u(x, u, s).squeeze().transpose()
+        B = self.dynamics.state_dot_u(x, u, s).squeeze()
         d = self.dynamics.state_dot_s(x, u).squeeze()
 
         phi = V[self.A_bar_ind].reshape((self.n_x, self.n_x))

@@ -152,7 +152,7 @@ class DynamicsBase:
         control_ca = ca.DM(control)
         s_ca = ca.DM(s)
         result = self.state_dot_u_compiled(state_ca, control_ca, s_ca)
-        return np.array(result.full()).reshape((self.n_u, self.n_x))
+        return np.array(result.full()).reshape((self.n_x, self.n_u))
     
     def state_dot_xx(self, state, control, s):
         state_ca = ca.DM(state)
